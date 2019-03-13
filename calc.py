@@ -4,6 +4,7 @@ import re
 
 from source import get_data_by_report
 from calcaroma import get_all
+from cityboom import get_report_by_city
 
 
 def use_best_stations():
@@ -21,7 +22,9 @@ def merge_docs():
     sep = get_data_by_report('month/2sep.xlsx')
     aug = get_data_by_report('month/1aug.xlsx')
     data_2018 = pd.concat([aug, sep, oct, nov, dec], sort=True)
-    data = pd.concat([aug, sep, oct, nov, dec, jan, feb], sort=True)
+    data_feb = pd.concat([feb], sort=True)
+
+    get_report_by_city(data_feb, data_2018)
 
     # good_stations = get_good_station(data)
     # bad_stations = get_bad_station(data)
@@ -36,7 +39,9 @@ def merge_docs():
     # get_all(data, data_2018)
 
     # get_by_number(jan, bad_list, 'bad')
-    get_full_report(data)
+    # get_full_report(data)
+    # get_product_by_good(data_2018, {}, 'shym')
+
 
     print('done')
 
@@ -53,16 +58,12 @@ def get_full_report(data):
 
     # print(data.head())
 
+    data = data[data['region'] == 'Шымкент']
     df = pd.pivot_table(data, values=['rest'],
-                        columns=['month'],
-                        index=['region', 'station', 'number'],
+                        columns=['region', 'station'],
+                        index=['number'],
                         aggfunc=np.sum)
-    # df['worked'] = df['real'].count(axis=1)
-    # df['arg'] = df['real'].sum(axis=1) / df['worked']
-    # df = df[df['arg'] > 19.9]
-    # df['sum'] = df['real'].sum(axis=1)
-
-    df.to_csv('report/fullreport')
+    df.to_csv('report/shym')
 
 
 def get_all_return():
@@ -146,14 +147,15 @@ def get_product_by_good(data, stations, sep):
 
 def get_product_by_good_h(data, stations, sep, gender):
     cities = ('Актау', 'Актобе', 'Атырау', 'Кызылорда', 'Тараз', 'Шымкент')
-    no_selected_cities = ('Астана', 'Алматы', 'Усть-Каменогорск')
+    # no_selected_cities = ('Астана', 'Алматы', 'Усть-Каменогорск')
 
-    group = []
-    for station in stations:
-        if station['city'] not in no_selected_cities:
-            group.append(station)
+    group = ['Шымкент']
+    # for station in stations:
+    #     if station['city'] not in no_selected_cities:
+    #         group.append(station)
 
     # print(group)
+
 
     for item in group:
 
