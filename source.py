@@ -11,7 +11,7 @@ def get_data_by_report(filename):
     df['type'] = df['number'].apply(lambda x: x[0])
 
     # groupped = df.groupby(['region', 'station'])['real'].sum()
-    groupped = df[['month', 'region', 'station', 'number', 'type', 'real', 'rest']]
+    groupped = df[['month', 'region', 'station', 'article', 'number', 'type', 'real', 'rest']]
 
     return groupped
 

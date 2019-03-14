@@ -14,6 +14,7 @@ def use_best_stations():
 
 
 def merge_docs():
+    feb_shym = get_data_by_report('month/7feb_shym.xlsx')
     feb = get_data_by_report('month/7feb.xlsx')
     jan = get_data_by_report('month/6jan.xlsx')
     dec = get_data_by_report('month/5dec.xlsx')
@@ -22,7 +23,7 @@ def merge_docs():
     sep = get_data_by_report('month/2sep.xlsx')
     aug = get_data_by_report('month/1aug.xlsx')
     data_2018 = pd.concat([aug, sep, oct, nov, dec], sort=True)
-    data_feb = pd.concat([feb], sort=True)
+    data_feb = pd.concat([feb_shym], sort=True)
 
     get_report_by_city(data_feb, data_2018)
 

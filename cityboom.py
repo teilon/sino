@@ -5,6 +5,8 @@ import pandas as pd
 def get_report_by_city(data, data_2018):
     city = 'Шымкент'
     # city = 'Астана'
+    # city = 'Алматы'
+    # city = 'Актобе'
 
     rest = get_rest(data, city)
     prognoz = get_prognoz(data_2018, city)
@@ -17,7 +19,7 @@ def get_rest(data, city):
     data = data[data['region'] == city]
     res = pd.pivot_table(data, values=['rest'],
                           columns=['region', 'station'],
-                          index=['number'],
+                          index=['number', 'article'],
                           aggfunc=np.sum)
 
     res.to_csv('report/rest_{}'.format(city))
