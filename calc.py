@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import re
 
-from source import get_data_by_report
+from source import get_data_by_report, get_df_by_file, get_aromaname
 from calcaroma import get_all
 from cityboom import get_report_by_city
 
