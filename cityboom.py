@@ -23,12 +23,10 @@ def tmp(data, data_2018):
     pr = data_2018[data_2018['region'] == 'Алматы']
 
     # df.groupby(['Animal']).mean()
-    col_real =
+    # col_real =
 
-    pr = pr.groupby(['region', 'station', 'article', 'number'])
+    pr.groupby(['region', 'station', 'article', 'number'])
     pr.to_csv('report/tmp_{}'.format(city))
-
-
 
     # month = re.search('/\w+', filename).group(0)[1:]
     # df['month'] = month

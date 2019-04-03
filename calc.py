@@ -2,15 +2,24 @@ import numpy as np
 import pandas as pd
 import re
 
-from source import get_data_by_report, get_df_by_file, get_aromaname
+from source import get_data_by_report, get_df_by_file, get_aromaname, get_data_by_report_
 from calcaroma import get_all
 from cityboom import get_report_by_city
 
 
 def use_best_stations():
-    # merged = merge_docs()
-    # get_all_return()
     merge_docs()
+    tmp()
+
+
+def tmp():
+    mar = get_data_by_report_('month/8mar.xlsx')
+    aug = get_data_by_reporтt('month/1aug.xlsx')
+
+    data_2018 = pd.concat([aug, mar
+                           ], sort=True)
+
+    mar.to_csv('report/tmp')
 
 
 def merge_docs():

@@ -16,6 +16,27 @@ def get_data_by_report(filename):
     return groupped
 
 
+def get_data_by_report_(filename):
+    df = get_df_by_file(filename)
+
+    month = re.search('/\w+', filename).group(0)[1:]
+    df['month'] = month
+    df['number'] = df['article'].apply(get_aromaname)
+    df['type'] = df['number'].apply(lambda x: x[0])
+
+    # groupped = df.groupby(['region', 'station'])['real'].sum()
+
+    REAL_COL = '{}_real'.format(month[1:])
+    REST_COL = '{}_rest'.format(month[1:])
+    # df.rename(columns={'real': REAL_COL})
+    # df.rename(columns={'rest': REST_COL})
+
+    groupped = df[['month', 'region', 'station', 'article', 'number', 'type', 'real', 'rest']]
+    # groupped.columns = ['month', 'region', 'station', 'article', 'number', 'type', REAL_COL, REST_COL]
+
+    return groupped
+
+
 def get_rpdata_by_report(filename):
     df = get_df_by_file(filename)
 
