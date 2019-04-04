@@ -14,12 +14,11 @@ def use_best_stations():
 
 def tmp():
     mar = get_data_by_report_('month/8mar.xlsx')
-    aug = get_data_by_reporтt('month/1aug.xlsx')
+    aug = get_data_by_report_('month/1aug.xlsx')
 
-    data_2018 = pd.concat([aug, mar
-                           ], sort=True)
+    data_2018 = pd.concat([aug, mar], sort=True, axis=0, ignore_index=True)
 
-    mar.to_csv('report/tmp')
+    data_2018.to_csv('report/tmp')
 
 
 def merge_docs():

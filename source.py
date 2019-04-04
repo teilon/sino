@@ -31,8 +31,8 @@ def get_data_by_report_(filename):
     # df.rename(columns={'real': REAL_COL})
     # df.rename(columns={'rest': REST_COL})
 
-    groupped = df[['month', 'region', 'station', 'article', 'number', 'type', 'real', 'rest']]
-    # groupped.columns = ['month', 'region', 'station', 'article', 'number', 'type', REAL_COL, REST_COL]
+    groupped = df[['region', 'station', 'article', 'number', 'type', 'real', 'rest']]
+    groupped.columns = ['region', 'station', 'article', 'number', 'type', REAL_COL, REST_COL]
 
     return groupped
 

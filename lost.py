@@ -9,12 +9,8 @@ def get_report():
 
 
 def get_all():
-    cities = ['shymlost',
-              'aktaulost',
-              'atyraulost',
-              'aktobelost',
-              'tarazlost',
-              'kizylordalost'
+    cities = ['shymlost', 'aktaulost', 'atyraulost',
+              'aktobelost', 'tarazlost', 'kizylordalost'
               ]
 
     for city in cities:
