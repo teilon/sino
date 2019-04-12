@@ -7,37 +7,14 @@ def get_report_by_city(data, data_2018):
     return
     # city = 'Шымкент'
     # city = 'Астана'
-    city = 'Алматы'
-    # city = 'Актобе'
+    # city = 'Алматы'
+    city = 'Актобе'
 
     rest = get_rest(data, city)
     prognoz = get_prognoz(data_2018, city)
     result = pd.concat([rest, prognoz], axis=1, sort=True)
 
     result.to_csv('report/result_{}'.format(city))
-
-
-def tmp(data, data_2018):
-    city = 'Алматы'
-    # pr = get_prognoz(data_2018, city)
-    pr = data_2018[data_2018['region'] == 'Алматы']
-
-    # df.groupby(['Animal']).mean()
-    # col_real =
-
-    pr.groupby(['region', 'station', 'article', 'number'])
-    pr.to_csv('report/tmp_{}'.format(city))
-
-    # month = re.search('/\w+', filename).group(0)[1:]
-    # df['month'] = month
-    # df['number'] = df['article'].apply(get_aromaname)
-    # df['type'] = df['number'].apply(lambda x: x[0])
-    #
-    # groupped = df[[
-    #     'month', 'region',
-    #     'station', 'article',
-    #     'number', 'type',
-    #     'real', 'rest']]
 
 
 def get_rest(data, city):
