@@ -14,13 +14,12 @@ def get_data(filename):
     df['month'] = month
     df['number'] = df['article'].apply(get_aromaname)
     df['type'] = df['number'].apply(lambda x: x[0])
-    df['itype'] = df['number'].apply(lambda x: 1 if x[0] == 'm' else 0)
 
     REAL_COL = '{}_real'.format(month[1:])
     REST_COL = '{}_rest'.format(month[1:])
 
-    groupped = df[['region', 'station', 'article', 'number', 'type', 'itype', 'real', 'rest']]
-    groupped.columns = ['region', 'station', 'article', 'number', 'type', 'itype', REAL_COL, REST_COL]
+    groupped = df[['region', 'station', 'article', 'number', 'type', 'real', 'rest']]
+    groupped.columns = ['region', 'station', 'article', 'number', 'type', REAL_COL, REST_COL]
 
     return groupped.fillna(0)
 
@@ -44,50 +43,42 @@ def tmp():
                                      how='outer',
                                      on=['region', 'station', 'article', 'number', 'type']),
         dfss)
+    d18['mar_rest'].fillna(0, inplace=True)
 
     reals = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real', 'jan_real', 'feb_real', 'mar_real']
     rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'mar_rest']
     view18 = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real']
-    mar_view = ['mar_rest', 'arg']
+
+    mar_view = ['region', 'station', 'article', 'number', 'mar_rest', 'needfull']
 
     d18['worked'] = d18[view18].count(axis=1)
     d18['arg'] = d18[view18].sum(axis=1)/d18['worked']
 
-    # d18 = d18.groupby(['region', 'station', 'article'])['mar_rest', 'arg'].sum()
-    # d18 = d18.groupby(['region', 'station', 'article']).sum()
-
-    # d18_mar['prognoz'] = get_prognoz(d18_mar['mar_rest'], d18_mar['arg'])
+    d18['prognoz'] = d18.apply(lambda row: get_prognoz(row), axis=1)
+    d18['needfull'] = d18.apply(lambda row: get_needfull(row), axis=1)
 
     print(d18.head())
-    try:
-        d18 = d18[d18['itype_x'] > 0]
-        print(d18.head())
-    except Exception as ex:
-        print(str(ex))
-
-    # d18_mar_w['prognoz'] = 0 if d18['mar_rest'] > d18['arg'] else 1
-    #
-    # d18_mar_m = d18[d18['itype_x'] == 1]
-    # d18_mar_m['prognoz'] = 0 if d18['mar_rest'] > d18['arg'] else 1
-    #
-    # d18 = pd.concat([d18_mar_w, d18_mar_m], sort=True)
-
-    # d18_mar = d18[mar_view]
-    # print(d18_mar.head())
-
-    # d18[d18['region'] == 'Шымкент'].to_csv('report/tmp')
-    # d18_mar.to_csv('report/tmp')
+    d18[mar_view].to_csv('report/tmp')
 
 
-def get_prognoz(rest, arg):
-    print(rest)
-    if rest > arg:
-        return 0
-    if rest < 3:
+def get_needfull(row):
+    return row['prognoz'] - row['mar_rest'] if row['prognoz'] > row['mar_rest'] else 0
+
+
+def get_prognoz(row):
+    if row['type'] == 'm':
+        if (row['arg'] > 2.9) and (row['arg'] < 6):
+            return 6
+        if row['arg'] > 5.9:
+            return 9
         return 3
-    if rest > 6:
-        return 9
-    return 6
+    if (row['arg'] > 1.9) and (row['arg'] < 4):
+        return 4
+    if row['arg'] > 3.9:
+        return 6
+    return 2
+
+
 
 def get_group(data, data_2018):
     city = 'Алматы'
