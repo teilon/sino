@@ -79,7 +79,6 @@ def get_prognoz(row):
     return 2
 
 
-
 def get_group(data, data_2018):
     city = 'Алматы'
     # pr = get_prognoz(data_2018, city)
