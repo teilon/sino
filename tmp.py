@@ -49,7 +49,8 @@ def tmp():
     rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'mar_rest']
     view18 = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real']
 
-    mar_view = ['region', 'station', 'article', 'number', 'mar_rest', 'needfull']
+    mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
+    nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
 
     d18['worked'] = d18[view18].count(axis=1)
     d18['arg'] = d18[view18].sum(axis=1)/d18['worked']
@@ -77,26 +78,3 @@ def get_prognoz(row):
     if row['arg'] > 3.9:
         return 6
     return 2
-
-
-def get_group(data, data_2018):
-    city = 'Алматы'
-    # pr = get_prognoz(data_2018, city)
-    pr = data_2018[data_2018['region'] == 'Алматы']
-
-    # df.groupby(['Animal']).mean()
-    # col_real =
-
-    pr.groupby(['region', 'station', 'article', 'number'])
-    pr.to_csv('report/tmp_{}'.format(city))
-
-    # month = re.search('/\w+', filename).group(0)[1:]
-    # df['month'] = month
-    # df['number'] = df['article'].apply(get_aromaname)
-    # df['type'] = df['number'].apply(lambda x: x[0])
-    #
-    # groupped = df[[
-    #     'month', 'region',
-    #     'station', 'article',
-    #     'number', 'type',
-    #     'real', 'rest']]

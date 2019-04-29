@@ -9,9 +9,6 @@ from tmp import tmp
 
 
 def main():
-
-    # use_best_stations()
-
     tmp()
 
 
