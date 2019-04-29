@@ -52,6 +52,7 @@ def tmp():
     mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
     nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
 
+    #
     d18['worked'] = d18[view18].count(axis=1)
     d18['arg'] = d18[view18].sum(axis=1)/d18['worked']
 
