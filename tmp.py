@@ -25,6 +25,7 @@ def get_data(filename):
 
 
 def tmp():
+    apr = get_data('month/9apr.xlsx')
     mar = get_data('month/8mar.xlsx')
     feb = get_data('month/7feb.xlsx')
     jan = get_data('month/6jan.xlsx')
@@ -34,8 +35,8 @@ def tmp():
     sep = get_data('month/2sep.xlsx')
     aug = get_data('month/1aug.xlsx')
 
-    dfs = [aug, sep, oct, nov, dec, mar]
-    dfss = [aug, sep, oct, nov, dec, jan, feb, mar]
+    dfs = [aug, sep, oct, nov, dec, apr]
+    dfss = [aug, sep, oct, nov, dec, jan, feb, apr]
 
     d18 = reduce(
         lambda left, right: pd.merge(left,
@@ -43,11 +44,13 @@ def tmp():
                                      how='outer',
                                      on=['region', 'station', 'article', 'number', 'type']),
         dfss)
-    d18['mar_rest'].fillna(0, inplace=True)
+    d18['apr_rest'].fillna(0, inplace=True)
 
-    reals = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real', 'jan_real', 'feb_real', 'mar_real']
-    rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'mar_rest']
+    reals = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real', 'jan_real', 'feb_real', 'apr_real']
+    rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'apr_rest']
     view18 = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real']
+
+    apr_view = ['region', 'station', 'article', 'number', 'apr_real', 'apr_rest', 'needfull']
 
     mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
     nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
@@ -59,12 +62,27 @@ def tmp():
     d18['prognoz'] = d18.apply(lambda row: get_prognoz(row), axis=1)
     d18['needfull'] = d18.apply(lambda row: get_needfull(row), axis=1)
 
-    print(d18.head())
-    d18[mar_view].to_csv('report/tmp')
+    res = d18[d18['region'] == 'Тараз']
+    res = res[apr_view]
+    get_report(d18)
+    print(res.head())
+    res.to_csv('report/tmp')
+    # d18[apr_view].to_csv('report/tmp')
+
+
+def get_report(data):
+    # apr_view = ['region', 'station', 'article', 'number', 'apr_real', 'apr_rest', 'needfull']
+
+    data = pd.pivot_table(data, values=['apr_real', 'apr_rest'],
+                           # columns=['month'],
+                           index=['region'],
+
+                           aggfunc=np.sum)
+    data.to_csv('report/tmp_1')
 
 
 def get_needfull(row):
-    return row['prognoz'] - row['mar_rest'] if row['prognoz'] > row['mar_rest'] else 0
+    return row['prognoz'] - row['apr_rest'] if row['prognoz'] > row['apr_rest'] else 0
 
 
 def get_prognoz(row):
