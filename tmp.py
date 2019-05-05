@@ -80,9 +80,9 @@ def tmp():
     arg = ['region', 'station',  # 'number',
            'aug_real', 'sep_real', 'oct_real',
            'nov_real', 'dec_real', 'apr_real',
-           'worked', 'total', 'arg']
+           'worked', 'total']
 
-    d18 = d18[d18['region'] == 'Шымкент']
+    # d18 = d18[d18['region'] == 'Шымкент']
     d18 = d18[arg]
     d18 = d18.groupby(['region', 'station']).sum()
     d18.to_csv('report/tmp_group')
