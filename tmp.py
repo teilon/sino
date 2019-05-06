@@ -57,12 +57,13 @@ def tmp():
                 'feb_real', 'mar_real', 'apr_real']
 
     apr_view = ['region', 'station', 'number', 'arg', 'apr_real', 'apr_rest', 'needfull']
-    arg0 = ['region', 'station', 'number',
-           'aug_real', 'aug_rest', 'sep_real', 'sep_rest', 'oct_real', 'oct_rest',
-           'nov_real', 'nov_rest', 'dec_real', 'dec_rest', 'jan_real', 'jan_rest',
-           'feb_real', 'feb_rest', 'mar_real', 'mar_rest', 'apr_real', 'apr_rest',
-           'arg'
-            ]
+    # arg0 = ['region', 'station', 'number',
+    #        'aug_real', 'aug_rest', 'sep_real', 'sep_rest', 'oct_real', 'oct_rest',
+    #        'nov_real', 'nov_rest', 'dec_real', 'dec_rest', 'jan_real', 'jan_rest',
+    #        'feb_real', 'feb_rest', 'mar_real', 'mar_rest', 'apr_real', 'apr_rest',
+    #        'arg'
+    #         ]
+
     mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
     nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
 
@@ -79,18 +80,20 @@ def tmp():
 
     arg = ['region', 'station',  # 'number',
            'aug_real', 'sep_real', 'oct_real',
-           'nov_real', 'dec_real', 'apr_real',
+           'nov_real', 'dec_real', 'jan_real',
+           'feb_real', 'mar_real', 'apr_real',
            'worked', 'total']
 
     # d18 = d18[d18['region'] == 'Шымкент']
     d18 = d18[arg]
     d18 = d18.groupby(['region', 'station']).sum()
-    d18.to_csv('report/tmp_group')
+    # d18.to_csv('report/tmp_group')
 
     # print(res.head())
     # res.to_csv('report/tmp_akt')
     # d18[arg0].to_csv('report/tmp')
     # d18[arg].to_csv('report/tmp_arg')
+    d18.to_csv('report/tmp_arg')
 
 
 def get_report(data):
