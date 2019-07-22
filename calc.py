@@ -1,281 +1,146 @@
 import numpy as np
 import pandas as pd
+from functools import reduce
 import re
-
-from source import get_data_by_report, get_df_by_file, get_aromaname
-from calcaroma import get_all
-from cityboom import get_report_by_city
-
-
-def use_best_stations():
-    merge_docs()
-
-
-def merge_docs():
-    feb_shym = get_data_by_report('month/7feb_shym.xlsx')
-    mar = get_data_by_report('month/8mar.xlsx')
-    feb = get_data_by_report('month/7feb.xlsx')
-    jan = get_data_by_report('month/6jan.xlsx')
-    dec = get_data_by_report('month/5dec.xlsx')
-    nov = get_data_by_report('month/4nov.xlsx')
-    oct = get_data_by_report('month/3oct.xlsx')
-    sep = get_data_by_report('month/2sep.xlsx')
-    aug = get_data_by_report('month/1aug.xlsx')
-    data_2018 = pd.concat([aug, sep, oct, nov, dec], sort=True)
-    data_mar = pd.concat([mar], sort=True)
-
-    get_report_by_city(data_mar, data_2018)
-
-    # good_stations = get_good_station(data)
-    # bad_stations = get_bad_station(data)
-
-    # good_list = get_station_list(good_stations)
-    # bad_list = get_station_list(bad_stations)
-
-    # get_product_by_good(data, good_list, 'good')
-    # get_product_by_good(jan, good_list, 'good')
-    # get_product_by_good(data, bad_list, 'bad')
-
-    # get_all(data, data_2018)
-
-    # get_by_number(jan, bad_list, 'bad')
-    # get_full_report(data)
-    # get_product_by_good(data_2018, {}, 'shym')
-
-    print('done')
-
-
-def get_full_report(data):
-    # cities = ['Астана', 'Алматы', 'Усть-Каменогорск']
-    # cities = ['Астана', 'Усть-Каменогорск',
-    #           'Актобе', 'Атырау', 'Актау',
-    #           'Кызылорда', 'Тараз', 'Шымкент']
-
-    # data = data.set_index('region')
-
-    # data = data.drop(cities)
-
-    # print(data.head())
-
-    data = data[data['region'] == 'Шымкент']
-    df = pd.pivot_table(data, values=['rest'],
-                        columns=['region', 'station'],
-                        index=['number'],
-                        aggfunc=np.sum)
-    df.to_csv('report/shym')
-
-
-def get_all_return():
-    dec = get_data_by_report('month/5dec.xlsx')
-    nov = get_data_by_report('month/4nov.xlsx')
-    oct = get_data_by_report('month/3oct.xlsx')
-    sep = get_data_by_report('month/2sep.xlsx')
-    aug = get_data_by_report('month/1aug.xlsx')
-    data = pd.concat([aug, sep, oct, nov, dec], sort=True)
-
-    bad_stations = get_bad_station(data)
-    bad_list = get_station_list(bad_stations)
-
-    get_all_return_number(dec, bad_list)
-
-
-def get_station_list(df):
-    ind = df.index
-    count = len(ind.labels[0])
-
-    res = []
-    for n in range(count):
-        city_label = ind.labels[0][n]
-        city = ind.levels[0][city_label]
-
-        station_label = ind.labels[1][n]
-        station = ind.levels[1][station_label]
-
-        tmp = True
-        for r in res:
-            if r['city'] == city:
-                if tmp:
-                    item['station'].append(station)
-                    tmp = False
-                    break
-        if tmp:
-            item = {}
-            item['city'] = city
-            item['station'] = []
-            item['station'].append(station)
-            res.append(item)
-
-    return res
-
-
-def get_good_station(df):
-    df = pd.pivot_table(df, values=['real'],
-                          columns=['month'],
-                          index=['region', 'station'],
-                          aggfunc=np.sum)
-
-    df['worked'] = df['real'].count(axis=1)
-    df['arg'] = df['real'].sum(axis=1)/df['worked']
-    df = df[df['arg'] > 14]
-    df['sum'] = df['real'].sum(axis=1)
-
-    return df
-
-
-def get_bad_station(df):
-    df = pd.pivot_table(df, values=['real'],
-                          columns=['month'],
-                          index=['region', 'station'],
-                          aggfunc=np.sum)
-
-    df['worked'] = df['real'].count(axis=1)
-    df['arg'] = df['real'].sum(axis=1)/df['worked']
-    df = df[df['arg'] < 20]
-    df['sum'] = df['real'].sum(axis=1)
-
-    return df
-
-
-def get_product_by_good(data, stations, sep):
-    mdata = data[data['type'] == 'm']
-    get_product_by_good_h(mdata, stations, sep, 'm')
-
-    wdata = data[data['type'] == 'w']
-    get_product_by_good_h(wdata, stations, sep, 'w')
-
-
-def get_product_by_good_h(data, stations, sep, gender):
-    cities = ('Актау', 'Актобе', 'Атырау', 'Кызылорда', 'Тараз', 'Шымкент')
-    # no_selected_cities = ('Астана', 'Алматы', 'Усть-Каменогорск')
-
-    group = ['Шымкент']
-    # for station in stations:
-    #     if station['city'] not in no_selected_cities:
-    #         group.append(station)
-
-    # print(group)
-
-
-    for item in group:
-
-        idata = data[data['region'] == item['city']]
-        idata = idata[idata['station'].isin(item['station'])]
-
-        idata = pd.pivot_table(idata, values=['real', 'rest'],
-                            columns=['month'],
-                            index=['region', 'station', 'number'],
-                            aggfunc=np.sum)
-        idata['worked'] = idata['real'].count(axis=1)
-        idata['arg'] = idata['real'].sum(axis=1) / idata['worked']
-        if gender == 'm':
-            idata['prognoz'] = np.where(idata['arg'] < 4, 3, 6)
-        if gender == 'w':
-            idata['prognoz'] = np.where(idata['arg'] < 2.1, 2, 4)
-
-        # toadd = idata['prognoz'] - idata['rest']
-        # tosub = idata['rest'] - idata['prognoz']
-        # idata['add'] = np.where(toadd > 0, toadd, 0)
-        # idata['sub'] = np.where(tosub > 0, tosub, 0)
-        # idata['add'] = np.where(idata['rest'] < idata['prognoz'], idata['prognoz'] - idata['rest'], 0)
-        # idata['sub'] = np.where(idata['rest'] > idata['prognoz'], idata['rest'] - idata['prognoz'], 0)
-
-        # pd['irr'] = np.where(pd['cs'] * 0.63 > pd['irr'], 1.0, 0.0)
-
-        idata.to_csv('report/{}_{}_{}'.format(item['city'], gender, sep))
-
-    # print(data.head())
-    return data
-
-
-def get_by_number(data, stations, sep):
-    # no_selected_cities = ('Астана', 'Алматы', 'Усть-Каменогорск')
-
-    print(stations)
-
-    # group = stations[~stations['city'].isin(no_selected_cities)]
-    # group = []
-    # for station in stations:
-    #     if station['city'] not in no_selected_cities:
-    #         group.append(station)
-
-    for item in stations:
-        idata = data[data['region'] == item['city']]
-        idata = idata[idata['station'].isin(item['station'])]
-
-        idata = pd.pivot_table(idata, values=['rest'],
-                            columns=['station'],
-                            index=['region', 'number'],
-                            aggfunc=np.sum)
-
-        idata.to_csv('report/sub_{}_{}'.format(item['city'], sep))
-
-
-def get_all_return_number(data, stations):
-    # no_selected_cities = ('Астана', 'Алматы', 'Усть-Каменогорск')
-
-    print(stations)
-
-    # group = stations[~stations['city'].isin(no_selected_cities)]
-    # group = []
-    # for station in stations:
-    #     if station['city'] not in no_selected_cities:
-    #         group.append(station)
-
-    dfs = []
-    for item in stations:
-        idata = data[data['region'] == item['city']]
-        idata = idata[idata['station'].isin(item['station'])]
-
-        idata = pd.pivot_table(idata, values=['rest'],
-                            columns=['region', 'station'],
-                            index=['number'],
-                            aggfunc=np.sum)
-
-        dfs.append(idata)
-        # idata.to_csv('report/sub_{}_{}'.format(item['city'], sep))
-
-    rdata = pd.concat(dfs, axis=1)
-    # rdata['sum'] = rdata.sum(rdata['rest'])
-    rdata.to_csv('report/return')
-    print('save')
-
-
-# def get_by_counts(filename):
-#     month = re.search('/\w+', filename).group(0)[1:]
-#     print(month)
-#
-#     try:
-#         select = pd.read_excel(filename)
-#     except FileNotFoundError:
-#         print('FileNotFoundError')
-#
-#     select['common'] = select['real'] + select['rest']
-#     select['month'] = month
-#     select['number'] = select['article'].apply(get_aromaname)
-#     select['type'] = select['number'].apply(lambda x: x[0])
-#
-#     # new_select = select[select['number'] == 'man#10']
-#
-#     groupped = select.groupby(['region', 'station'])['real'].sum()
-#     return groupped
-
-
-# def get_by_month(filename):
-#     month = re.search('/\w+', filename).group(0)[1:]
-#     print(month)
-#     try:
-#         select = pd.read_excel(filename)
-#     except FileNotFoundError:
-#         print('FileNotFoundError')
-#
-#     select['common'] = select['real'] + select['rest']
-#     select['month'] = month
-#     select['number'] = select['article'].apply(get_aromaname)
-#     select['type'] = select['number'].apply(lambda x: x[0])
-#
-#     table = pd.pivot_table(select, values=['real'],
-#                            columns=['month'],
-#                            index=['region'],
-#                            aggfunc=np.sum
-#                            )
-#     return table
+import math
+
+from source import get_df_by_file
+from source import get_aromaname
+
+
+def get_data(filename):
+    df = get_df_by_file(filename)
+
+    month = re.search('/\w+', filename).group(0)[1:]
+    df['month'] = month
+
+    df['number'] = df['article'].apply(get_aromaname)
+    df['type'] = df['number'].apply(lambda x: x[0])
+
+    # month_w = re.search('/^[a-zA-Z]+$', month)
+
+    REAL_COL = '{}_real'.format(month[1:])
+    REST_COL = '{}_rest'.format(month[1:])
+    if (month == '10may'):
+        REAL_COL = '{}_real'.format(month[2:])
+        REST_COL = '{}_rest'.format(month[2:])
+
+    groupped = df[['region', 'station', 'article', 'number', 'type', 'real', 'rest']]
+    groupped.columns = ['region', 'station', 'article', 'number', 'type', REAL_COL, REST_COL]
+
+    return groupped.fillna(0)
+
+
+def start_calc():
+    may = get_data('month/10may.xlsx')
+    apr = get_data('month/9apr.xlsx')
+    mar = get_data('month/8mar.xlsx')
+    feb = get_data('month/7feb.xlsx')
+    jan = get_data('month/6jan.xlsx')
+    dec = get_data('month/5dec.xlsx')
+    nov = get_data('month/4nov.xlsx')
+    oct = get_data('month/3oct.xlsx')
+    sep = get_data('month/2sep.xlsx')
+    aug = get_data('month/1aug.xlsx')
+    jul = get_data('month/0jul.xlsx')
+
+    dfs = [aug, sep, oct, nov, dec, apr, may]
+    dfss = [aug, sep, oct, nov, dec, jan, feb, mar, apr, may]
+
+    d18 = reduce(
+        lambda left, right: pd.merge(left,
+                                     right,
+                                     how='outer',
+                                     on=['region', 'station', 'article', 'number', 'type']),
+        dfss)
+    d18['apr_rest'].fillna(0, inplace=True)
+
+    reals = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real', 'jan_real', 'feb_real', 'apr_real']
+    rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'apr_rest']
+    view18 = ['aug_real', 'sep_real', 'oct_real',
+              'nov_real', 'dec_real', 'apr_real',
+              'may_real']
+
+    view1819 = ['aug_real', 'sep_real', 'oct_real',
+                'nov_real', 'dec_real', 'jan_real',
+                'feb_real', 'mar_real', 'apr_real',
+                'may_real']
+
+    apr_view = ['region', 'station', 'number', 'arg', 'apr_real', 'apr_rest', 'needfull']
+    # arg0 = ['region', 'station', 'number',
+    #        'aug_real', 'aug_rest', 'sep_real', 'sep_rest', 'oct_real', 'oct_rest',
+    #        'nov_real', 'nov_rest', 'dec_real', 'dec_rest', 'jan_real', 'jan_rest',
+    #        'feb_real', 'feb_rest', 'mar_real', 'mar_rest', 'apr_real', 'apr_rest',
+    #        'arg'
+    #         ]
+
+    mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
+    nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
+
+    #
+    d18['worked'] = d18[view1819].count(axis=1)
+    d18['total'] = d18[view1819].sum(axis=1)
+    d18['arg'] = d18['total']/d18['worked']
+
+    d18['prognoz'] = d18.apply(lambda row: get_prognoz(row), axis=1)
+    d18['needfull'] = d18.apply(lambda row: get_needfull(row), axis=1)
+
+    # res = d18[d18['region'] == 'Актобе']
+    # res = d18[apr_view]
+
+    arg = ['region', 'station',
+           'number',
+           # 'aug_real', 'sep_real', 'oct_real',
+           # 'nov_real', 'dec_real', 'jan_real',
+           # 'feb_real', 'mar_real',
+           'apr_real',
+           'may_real',
+           'may_rest',
+           # 'worked',
+           'arg',
+           'total']
+
+    arg_prognoz = ['region', 'station', 'number',
+           'may_real', 'may_rest', 'arg',
+           # 'prognoz',
+                   'needfull']
+
+    # d18 = d18[d18['region'] == 'Шымкент']
+
+    d18 = d18[arg]
+    # d18 = d18[arg_prognoz]
+
+    # alldata[(alldata[IBRD] != 0) | (alldata[IMF] != 0)]
+
+    # d18 = d18[(d18['region'] == 'Актобе') | (d18['region'] == 'Актау') | (d18['region'] == 'Атырау')]
+    d18 = d18[d18['region'] == 'Усть-Каменогорск']
+    d18 = d18.groupby(['region', 'station']).sum()
+    # d18.to_csv('report/tmp_group')
+
+    # print(res.head())
+    # res.to_csv('report/tmp_akt')
+    # d18[arg0].to_csv('report/tmp')
+    # d18[arg].to_csv('report/tmp_arg')
+    # d18.to_csv('report/tmp_arg.csv')
+
+    d18.to_csv('report/tmp_arg.csv')
+
+
+def get_needfull(row):
+    if math.isnan(float(row['may_rest'])):
+        row['may_rest'] = 0
+    return row['prognoz'] - row['may_rest'] if row['prognoz'] > row['may_rest'] else 0
+
+
+def get_prognoz(row):
+    if row['type'] == 'm':
+        if (row['arg'] > 2.9) and (row['arg'] < 6):
+            return 6
+        if row['arg'] > 5.9:
+            return 9
+        return 3
+    if (row['arg'] > 1.9) and (row['arg'] < 4):
+        return 4
+    if row['arg'] > 3.9:
+        return 6
+    return 2
