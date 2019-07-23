@@ -32,6 +32,8 @@ def get_data(filename):
 
 
 def start_calc():
+    jul = get_data('month/12jul.xlsx')
+    jun = get_data('month/11jun.xlsx')
     may = get_data('month/10may.xlsx')
     apr = get_data('month/9apr.xlsx')
     mar = get_data('month/8mar.xlsx')
@@ -42,10 +44,10 @@ def start_calc():
     oct = get_data('month/3oct.xlsx')
     sep = get_data('month/2sep.xlsx')
     aug = get_data('month/1aug.xlsx')
-    jul = get_data('month/0jul.xlsx')
+    # jul = get_data('month/0jul.xlsx')
 
-    dfs = [aug, sep, oct, nov, dec, apr, may]
-    dfss = [aug, sep, oct, nov, dec, jan, feb, mar, apr, may]
+    # dfs = [aug, sep, oct, nov, dec, apr, may, jun, jul]
+    dfss = [aug, sep, oct, nov, dec, jan, feb, mar, apr, may, jun, jul]
 
     d18 = reduce(
         lambda left, right: pd.merge(left,
@@ -53,20 +55,21 @@ def start_calc():
                                      how='outer',
                                      on=['region', 'station', 'article', 'number', 'type']),
         dfss)
-    d18['apr_rest'].fillna(0, inplace=True)
+    d18['jul_rest'].fillna(0, inplace=True)
 
-    reals = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real', 'jan_real', 'feb_real', 'apr_real']
-    rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'apr_rest']
-    view18 = ['aug_real', 'sep_real', 'oct_real',
-              'nov_real', 'dec_real', 'apr_real',
-              'may_real']
+    # reals = ['aug_real', 'sep_real', 'oct_real', 'nov_real', 'dec_real', 'jan_real', 'feb_real', 'apr_real']
+    # rests = ['aug_rest', 'sep_rest', 'oct_rest', 'nov_rest', 'dec_rest', 'jan_rest', 'feb_rest', 'apr_rest']
+    # view18 = ['aug_real', 'sep_real', 'oct_real',
+    #           'nov_real', 'dec_real', 'apr_real',
+    #           'may_real', 'jun_real', 'jul_real']
 
     view1819 = ['aug_real', 'sep_real', 'oct_real',
                 'nov_real', 'dec_real', 'jan_real',
                 'feb_real', 'mar_real', 'apr_real',
-                'may_real']
+                'may_real', 'jun_real', 'jul_real',
+                'jul_rest']
 
-    apr_view = ['region', 'station', 'number', 'arg', 'apr_real', 'apr_rest', 'needfull']
+    # apr_view = ['region', 'station', 'number', 'arg', 'apr_real', 'apr_rest', 'needfull']
     # arg0 = ['region', 'station', 'number',
     #        'aug_real', 'aug_rest', 'sep_real', 'sep_rest', 'oct_real', 'oct_rest',
     #        'nov_real', 'nov_rest', 'dec_real', 'dec_rest', 'jan_real', 'jan_rest',
@@ -74,8 +77,8 @@ def start_calc():
     #        'arg'
     #         ]
 
-    mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
-    nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
+    # mar_view = ['region', 'station', 'article', 'number', 'mar_real', 'mar_rest', 'needfull']
+    # nov_view = ['region', 'station', 'article', 'number', 'nov_real', 'nov_rest', 'needfull']
 
     #
     d18['worked'] = d18[view1819].count(axis=1)
@@ -90,20 +93,23 @@ def start_calc():
 
     arg = ['region', 'station',
            'number',
-           # 'aug_real', 'sep_real', 'oct_real',
-           # 'nov_real', 'dec_real', 'jan_real',
-           # 'feb_real', 'mar_real',
+           'aug_real', 'sep_real', 'oct_real',
+           'nov_real', 'dec_real', 'jan_real',
+           'feb_real', 'mar_real',
            'apr_real',
-           'may_real',
-           'may_rest',
+           'may_real', 'jun_real', 'jul_real',
+           'jul_rest',
            # 'worked',
            'arg',
            'total']
 
     arg_prognoz = ['region', 'station', 'number',
-           'may_real', 'may_rest', 'arg',
-           # 'prognoz',
-                   'needfull']
+                   'jul_real',
+                   'jul_rest',
+                   'arg',
+                   # 'prognoz',
+                   'needfull'
+                   ]
 
     # d18 = d18[d18['region'] == 'Шымкент']
 
@@ -127,9 +133,9 @@ def start_calc():
 
 
 def get_needfull(row):
-    if math.isnan(float(row['may_rest'])):
-        row['may_rest'] = 0
-    return row['prognoz'] - row['may_rest'] if row['prognoz'] > row['may_rest'] else 0
+    if math.isnan(float(row['jul_rest'])):
+        row['jul_rest'] = 0
+    return row['prognoz'] - row['jul_rest'] if row['prognoz'] > row['jul_rest'] else 0
 
 
 def get_prognoz(row):
