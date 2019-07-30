@@ -21,7 +21,7 @@ def get_data(filename):
 
     REAL_COL = '{}_real'.format(month[1:])
     REST_COL = '{}_rest'.format(month[1:])
-    if (month == '10may'):
+    if (month == '10may' or month == '11jun' or month == '12jul'):
         REAL_COL = '{}_real'.format(month[2:])
         REST_COL = '{}_rest'.format(month[2:])
 
@@ -119,7 +119,7 @@ def start_calc():
     # alldata[(alldata[IBRD] != 0) | (alldata[IMF] != 0)]
 
     # d18 = d18[(d18['region'] == 'Актобе') | (d18['region'] == 'Актау') | (d18['region'] == 'Атырау')]
-    d18 = d18[d18['region'] == 'Усть-Каменогорск']
+    d18 = d18[d18['region'] == 'Астана']
     d18 = d18.groupby(['region', 'station']).sum()
     # d18.to_csv('report/tmp_group')
 
